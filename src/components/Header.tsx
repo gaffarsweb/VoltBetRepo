@@ -40,7 +40,7 @@ export default function Header() {
 
             <button
               onClick={() => router.push("/auth/register")}
-              className="px-4 cursor-pointer py-2 rounded-lg bg-gradient-to-r from-[#00FFB2] to-[#00d4ff] text-black font-semibold hover:scale-105 transition"
+              className="px-4 cursor-pointer py-2 rounded-lg bg-gradient-to-r from-[#fcad4c] via-[#fb8a48] to-[#ef4c48] text-black font-semibold hover:scale-105 transition"
             >
               Register
             </button>

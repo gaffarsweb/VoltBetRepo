@@ -32,7 +32,7 @@ export default function Sidebar() {
     <aside
       className={`
         ${collapsed ? "w-20" : "w-64"}
-        bg-[#0F172A]
+        bg-gradient-to-t from-[#0B0F1A] via-[#141B2D] to-[#141B2D]
         border-r border-gray-800
         transition-all duration-300
         h-screen

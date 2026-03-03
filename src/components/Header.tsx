@@ -16,7 +16,7 @@ export default function Header() {
   const [openProfile, setOpenProfile] = useState(false);
 
   return (
-    <header className="h-16 bg-[#0F172A] flex items-center justify-between px-6 border-b border-gray-800 relative">
+    <header className="h-16 bg-gradient-to-r from-[#0B0F1A] via-[#141B2D] to-[#0B0F1A] flex items-center justify-between px-6 border-b border-gray-800 relative">
 
       {/* Logo */}
       <div

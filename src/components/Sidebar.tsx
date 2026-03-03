@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   FaHome,
   FaDice,
@@ -14,14 +15,26 @@ import {
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const menuItems = [
+    { label: "Home", icon: <FaHome />, path: "/" },
+    { label: "Casino", icon: <FaDice />, path: "/casino" },
+    { label: "Sports", icon: <FaFutbol />, path: "/sports" },
+    { label: "Live Bets", icon: <FaFire />, path: "/live" },
+    { label: "Promotions", icon: <FaGift />, path: "/promotions" },
+    { label: "VIP Club", icon: <FaCrown />, path: "/vip" },
+    { label: "Affiliate", icon: <FaUsers />, path: "/affiliate" },
+  ];
 
   return (
     <aside
       className={`
         ${collapsed ? "w-20" : "w-64"}
-        bg-card 
-        border-r border-gray-800 
-        transition-all duration-300 
+        bg-[#0F172A]
+        border-r border-gray-800
+        transition-all duration-300
         h-screen
         p-4
         hidden md:flex
@@ -29,7 +42,11 @@ export default function Sidebar() {
       `}
     >
       {/* Top Section */}
-      <div className={`flex items-center ${!collapsed ? 'justify-between':"justify-center"}  mb-8`}>
+      <div
+        className={`flex items-center ${
+          !collapsed ? "justify-between" : "justify-center"
+        } mb-8`}
+      >
         {!collapsed && (
           <h1 className="text-2xl font-bold text-primary">
             ⚡ VoltBet
@@ -46,13 +63,16 @@ export default function Sidebar() {
 
       {/* Menu */}
       <nav className="flex flex-col gap-4 text-gray-300">
-        <MenuItem icon={<FaHome />} label="Home" collapsed={collapsed} />
-        <MenuItem icon={<FaDice />} label="Casino" collapsed={collapsed} />
-        <MenuItem icon={<FaFutbol />} label="Sports" collapsed={collapsed} />
-        <MenuItem icon={<FaFire />} label="Live Bets" collapsed={collapsed} />
-        <MenuItem icon={<FaGift />} label="Promotions" collapsed={collapsed} />
-        <MenuItem icon={<FaCrown />} label="VIP Club" collapsed={collapsed} />
-        <MenuItem icon={<FaUsers />} label="Affiliate" collapsed={collapsed} />
+        {menuItems.map((item) => (
+          <MenuItem
+            key={item.path}
+            icon={item.icon}
+            label={item.label}
+            collapsed={collapsed}
+            active={pathname === item.path}
+            onClick={() => router.push(item.path)}
+          />
+        ))}
       </nav>
     </aside>
   );
@@ -62,24 +82,26 @@ function MenuItem({
   icon,
   label,
   collapsed,
+  active,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
   collapsed: boolean;
+  active: boolean;
+  onClick: () => void;
 }) {
   return (
     <div
-      className="
-        flex items-center 
-        gap-3 
-        p-3 
-        rounded-lg 
-        cursor-pointer 
-        hover:bg-[#1E293B] 
-        hover:text-primary 
-        transition
-        hover:text-[#fa8148]
-      "
+      onClick={onClick}
+      className={`
+        flex items-center gap-3 p-3 rounded-lg cursor-pointer transition
+        ${
+          active
+            ? "bg-[#1E293B] text-[#fa8148]"
+            : "hover:bg-[#1E293B] hover:text-[#fa8148]"
+        }
+      `}
     >
       <span className="text-lg">{icon}</span>
       {!collapsed && <span>{label}</span>}

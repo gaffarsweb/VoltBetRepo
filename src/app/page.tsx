@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="space-y-10">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#0B0F1A] via-[#141B2D] to-[#0B0F1A] p-10 rounded-2xl overflow-hidden border border-gray-800">
+      <section className=" bg-gradient-to-r from-[#0B0F1A] via-[#141B2D] to-[#0B0F1A] p-10 rounded-2xl overflow-hidden border border-gray-800">
         <div className="max-w-2xl">
           <h1 className="text-5xl font-bold text-white mb-4">
             ⚡ Welcome to <span className="text-primary">VoltBet</span>
@@ -14,11 +14,11 @@ export default function Home() {
           </p>
 
           <div className="flex gap-4">
-            <button className="bg-primary text-[#fa8148] px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
+            <button className="bg-primary cursor-pointer text-[#fa8148] px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
               Play Now
             </button>
 
-            <button className="bg-[#1E293B] px-6 py-3 rounded-xl text-white hover:bg-[#243044] transition">
+            <button className="bg-[#1E293B] cursor-pointer  px-6 py-3 rounded-xl text-white hover:bg-[#243044] transition">
               Explore Sports
             </button>
           </div>

@@ -44,12 +44,10 @@ export default function RegisterModal() {
       const response = await registerApi({ username, email, password });
       console.log('Register response:', response);
       if (response.success) {
-        toast.success("Registration successful! Please login.");
-        router.push("/");
+        toast.success("Registration successful!");
         login({
-          id: Date.now().toString(),
-          username,
-          balance: 500,
+          user: response?.user,
+          token: response?.accessToken
         });
         router.push("/");
       } else {

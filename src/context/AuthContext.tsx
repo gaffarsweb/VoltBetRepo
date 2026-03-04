@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 🔐 Login
-  const login = (data: { user: User; token: string, id?: any }) => {
+  const login = (data: any) => {
     setUser(data.user);
     setToken(data.token);
 

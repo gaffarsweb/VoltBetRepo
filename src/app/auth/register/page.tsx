@@ -46,8 +46,8 @@ export default function RegisterModal() {
       if (response.success) {
         toast.success("Registration successful!");
         login({
-          user: response?.user,
-          token: response?.accessToken
+          user: response?.data?.user,
+          token: response?.data?.accessToken
         });
         router.push("/");
       } else {

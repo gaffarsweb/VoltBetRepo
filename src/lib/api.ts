@@ -10,13 +10,13 @@ export const loginApi = async (data: {
 };
 
 // 📝 REGISTER
-export const registerApi = async (data: {
-  username: string;
-  email: string;
-  password: string;
-}) => {
-  const response = await api.post("/auth/register", data);
-  return response.data;
+export const registerApi = async (data: any) => {
+  try {
+    const response = await api.post("/auth/register", data);
+    return response.data;
+  } catch (error: any) {
+    return error.response.data;
+  }
 };
 
 // 👤 Get Profile (Protected)

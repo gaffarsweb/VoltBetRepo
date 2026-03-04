@@ -2,6 +2,7 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "react-hot-toast";
 export default function RootLayout({
   children,
 }: {
@@ -19,6 +20,7 @@ export default function RootLayout({
 
             <main className="flex-1 overflow-y-auto  p-6">
               {children}
+              <Toaster position="top-right" />
             </main>
           </div>
         </div>

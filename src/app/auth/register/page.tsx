@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { registerApi } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function RegisterModal() {
   const router = useRouter();
@@ -13,19 +15,53 @@ export default function RegisterModal() {
   const [password, setPassword] = useState("");
   const [accepted, setAccepted] = useState(false);
 
-  const handleRegister = () => {
-    if (!accepted) {
-      alert("Please accept Terms & Conditions");
-      return;
+  const handleRegister = async () => {
+    try {
+      if (!username || !email || !password) {
+        toast.error("Please fill all fields");
+        return;
+      }
+      if (username.includes(" ")) {
+        toast.error("Username cannot contain spaces");
+        return;
+      }
+      if (username.length < 3) {
+        toast.error("Username must be at least 3 characters");
+        return;
+      }
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        toast.error("Please enter a valid email");
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      if (!accepted) {
+        toast.error("Please accept Terms & Conditions");
+        return;
+      }
+      const response = await registerApi({ username, email, password });
+      console.log('Register response:', response);
+      if (response.success) {
+        toast.success("Registration successful! Please login.");
+        router.push("/");
+        login({
+          id: Date.now().toString(),
+          username,
+          balance: 500,
+        });
+        router.push("/");
+      } else {
+        toast.error("Registration failed: " + response.message);
+      }
+
+
+
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An error occurred during registration. Please try again.");
     }
-
-    login({
-      id: Date.now().toString(),
-      username,
-      balance: 500,
-    });
-
-    router.push("/");
   };
 
   return (

@@ -2,11 +2,15 @@ import api from "./axios";
 
 // 🔑 LOGIN
 export const loginApi = async (data: {
-  username: string;
+  email: string;
   password: string;
 }) => {
-  const response = await api.post("/auth/login", data);
-  return response.data;
+  try {
+    const response = await api.post("/auth/login", data);
+    return response.data;
+  } catch (error: any) {
+    return error.response?.data;
+  }
 };
 
 // 📝 REGISTER
@@ -15,7 +19,8 @@ export const registerApi = async (data: any) => {
     const response = await api.post("/auth/register", data);
     return response.data;
   } catch (error: any) {
-    return error.response.data;
+    console.log("API Error:", error.response?.data || error.message || error);
+    return error.response?.data;
   }
 };
 

@@ -25,8 +25,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const [token, setToken] = useState<any | null>(null);
 
   // 🔄 Restore auth on refresh
   useEffect(() => {

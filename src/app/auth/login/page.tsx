@@ -3,28 +3,75 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
+import { loginApi } from "@/lib/api";
 
 export default function LoginModal() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [username, setUsername] = useState("");
+  const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    login({
-      id: "1",
-      username: username || "voltUser",
-      balance: 1000,
-    });
+  const handleLogin = async () => {
+    if (loading) return;
+    try {
+      setLoading(true);
+      if (!email || !password) {
+        toast.error("Please fill all fields");
+        return;
+      }
+      if (email.includes(" ")) {
+        toast.error("email cannot contain spaces");
+        return;
+      }
+      if (email.length < 3) {
+        toast.error("email must be at least 3 characters");
+        return;
+      }
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        toast.error("Please enter a valid email");
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      const response = await loginApi({ email, password });
+      console.log('Login response:', response);
+      if (response.success) {
+        toast.success("Login successful!");
+        login({
+          user: response?.data?.user,
+          token: response?.data?.accessToken
+        });
+        router.push("/");
+      } else {
+        toast.error("Registration failed: " + response.message);
+      }
 
-    router.push("/");
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An error occurred during registration. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+  // const handleLogin = () => {
+  //   login({
+  //     id: "1",
+  //     email: email || "voltUser",
+  //     balance: 1000,
+  //   });
 
- return (
-  <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    
-    <div className="
+  //   router.push("/");
+  // };
+
+  return (
+    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+
+      <div className="
      w-full
           max-w-[950px]
           max-h-[90vh]
@@ -38,55 +85,55 @@ export default function LoginModal() {
           relative
     ">
 
-      {/* Close Button */}
-      <button
-        onClick={() => router.back()}
-        className="absolute right-8 top-4 text-gray-400 hover:text-white transition z-10"
-      >
-        ✕
-      </button>
+        {/* Close Button */}
+        <button
+          onClick={() => router.back()}
+          className="absolute right-8 top-4 text-gray-400 hover:text-white transition z-10"
+        >
+          ✕
+        </button>
 
-      {/* LEFT SIDE IMAGE */}
-      <div className="hidden md:block md:w-1/2 relative">
-        <img
-          src="https://rainbet.com/_next/image?url=https%3A%2F%2Fassets.rbgcdn.com%2F223k2P3%2Fraw%2Fbanners%2Fregister-banner.webp&w=1920&q=75"
-          className="h-full w-full object-cover"
-          alt="Login Banner"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
-      </div>
+        {/* LEFT SIDE IMAGE */}
+        <div className="hidden md:block md:w-1/2 relative">
+          <img
+            src="https://rainbet.com/_next/image?url=https%3A%2F%2Fassets.rbgcdn.com%2F223k2P3%2Fraw%2Fbanners%2Fregister-banner.webp&w=1920&q=75"
+            className="h-full w-full object-cover"
+            alt="Login Banner"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+        </div>
 
-      {/* RIGHT SIDE FORM */}
-      <div className="
+        {/* RIGHT SIDE FORM */}
+        <div className="
        w-full
             md:w-1/2
             p-6 sm:p-8 md:p-10
             overflow-y-auto
       ">
 
-        {/* Tabs */}
-        <div className="flex gap-6 mb-6 md:mb-8 border-b border-gray-700 pb-3 text-sm md:text-base">
-          <button className="text-white border-b-2 border-primary pb-2">
-            Login
-          </button>
-          <button
-            onClick={() => router.push("/auth/register")}
-            className="cursor-pointer text-gray-400 hover:text-white"
-          >
-            Register
-          </button>
-        </div>
+          {/* Tabs */}
+          <div className="flex gap-6 mb-6 md:mb-8 border-b border-gray-700 pb-3 text-sm md:text-base">
+            <button className="text-white border-b-2 border-primary pb-2">
+              Login
+            </button>
+            <button
+              onClick={() => router.push("/auth/register")}
+              className="cursor-pointer text-gray-400 hover:text-white"
+            >
+              Register
+            </button>
+          </div>
 
-        <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-          Log In to your Account
-        </h2>
+          <h2 className="text-2xl md:text-3xl font-semibold mb-6">
+            Log In to your Account
+          </h2>
 
-        {/* Username */}
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          className="
+          {/* email */}
+          <input
+            value={email}
+            onChange={(e) => setemail(e.target.value)}
+            placeholder="Email"
+            className="
             w-full 
             mb-4 
             p-3 md:p-4 
@@ -97,15 +144,15 @@ export default function LoginModal() {
             outline-none 
             transition
           "
-        />
+          />
 
-        {/* Password */}
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="
+          {/* Password */}
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="
             w-full 
             mb-4 md:mb-6 
             p-3 md:p-4 
@@ -116,17 +163,18 @@ export default function LoginModal() {
             outline-none 
             transition
           "
-        />
+          />
 
-        {/* Forgot */}
-        <div className="text-right text-xs md:text-sm text-gray-400 mb-4 md:mb-6 cursor-pointer hover:text-primary">
-          Forgot password?
-        </div>
+          {/* Forgot */}
+          <div className="text-right text-xs md:text-sm text-gray-400 mb-4 md:mb-6 cursor-pointer hover:text-primary">
+            Forgot password?
+          </div>
 
-        {/* Login Button */}
-        <button
-          onClick={handleLogin}
-          className="
+          {/* Login Button */}
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="
             w-full 
             py-3 md:py-4  mb-3
             rounded-xl 
@@ -135,23 +183,30 @@ export default function LoginModal() {
             text-black
             transition-all duration-300
             hover:scale-[1.02]
-            cursor-pointer
+            cursor-pointer 
+            disabled:cursor-not-allowed disabled:opacity-70
           "
-        >
-          Login
-        </button>
+          >
+            {loading ? (
+              <>
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
+          </button>
 
-         {/* DIVIDER */}
+          {/* DIVIDER */}
           <div className="flex items-center gap-4 my-4">
             <div className="flex-1 h-[1px] bg-gray-700"></div>
             <span className="text-gray-400 text-sm">Or sign in with</span>
             <div className="flex-1 h-[1px] bg-gray-700"></div>
           </div>
 
-<div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
 
-  {/* Google */}
-  <button className="
+            {/* Google */}
+            <button className="
     flex items-center justify-center gap-3
     py-3 rounded-xl
     bg-[#111726]
@@ -161,16 +216,16 @@ export default function LoginModal() {
     transition
     cursor-pointer
   ">
-    <img
-      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-      className="w-5 h-5"
-      alt="Google"
-    />
-    <span className="text-sm">Google</span>
-  </button>
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+                className="w-5 h-5"
+                alt="Google"
+              />
+              <span className="text-sm">Google</span>
+            </button>
 
-  {/* Facebook */}
-  <button className="
+            {/* Facebook */}
+            <button className="
     flex items-center justify-center gap-3
     py-3 rounded-xl
     bg-[#111726]
@@ -180,16 +235,16 @@ export default function LoginModal() {
     transition
     cursor-pointer
   ">
-    <img
-      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
-      className="w-5 h-5"
-      alt="Facebook"
-    />
-    <span className="text-sm">Facebook</span>
-  </button>
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
+                className="w-5 h-5"
+                alt="Facebook"
+              />
+              <span className="text-sm">Facebook</span>
+            </button>
 
-  {/* Telegram */}
-  <button className="
+            {/* Telegram */}
+            <button className="
     flex items-center justify-center gap-3
     py-3 rounded-xl
     bg-[#111726]
@@ -199,16 +254,16 @@ export default function LoginModal() {
     transition
     cursor-pointer
   ">
-    <img
-      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/telegram/telegram-original.svg"
-      className="w-5 h-5"
-      alt="Telegram"
-    />
-    <span className="text-sm">Telegram</span>
-  </button>
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/telegram/telegram-original.svg"
+                className="w-5 h-5"
+                alt="Telegram"
+              />
+              <span className="text-sm">Telegram</span>
+            </button>
 
-  {/* Discord */}
-  <button className="
+            {/* Discord */}
+            <button className="
     flex items-center justify-center gap-3
     py-3 rounded-xl
     bg-[#111726]
@@ -218,18 +273,18 @@ export default function LoginModal() {
     transition
     cursor-pointer
   ">
-    <img
-      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg"
-      className="w-5 h-5"
-      alt="Discord"
-    />
-    <span className="text-sm">Discord</span>
-  </button>
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg"
+                className="w-5 h-5"
+                alt="Discord"
+              />
+              <span className="text-sm">Discord</span>
+            </button>
 
-</div>
+          </div>
 
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 }

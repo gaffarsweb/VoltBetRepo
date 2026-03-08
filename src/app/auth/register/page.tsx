@@ -14,9 +14,12 @@ export default function RegisterModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [accepted, setAccepted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    if (loading) return;
     try {
+      setLoading(true);
       if (!username || !email || !password) {
         toast.error("Please fill all fields");
         return;
@@ -59,6 +62,8 @@ export default function RegisterModal() {
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("An error occurred during registration. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -171,8 +176,11 @@ export default function RegisterModal() {
 
           {/* REGISTER BUTTON */}
           <button
+            disabled={loading}
             onClick={handleRegister}
+            id="registerBtn"
             className="
+            register-btn
               w-full
               py-3 md:py-4 mb-4
               rounded-xl
@@ -181,10 +189,17 @@ export default function RegisterModal() {
               text-black
               transition-all duration-300
               hover:scale-[1.02]
+              disabled:cursor-not-allowed disabled:opacity-70
               cursor-pointer
             "
           >
-            Register
+            {loading ? (
+              <>
+                Registering...
+              </>
+            ) : (
+              "Register"
+            )}
           </button>
 
           {/* DIVIDER */}

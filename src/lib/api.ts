@@ -29,3 +29,11 @@ export const getProfileApi = async () => {
   const response = await api.get("/auth/me");
   return response.data;
 };
+export const getMyBalance = async () => {
+  try{
+  const response = await api.get("/balance/");
+  return response.data;
+  }catch(error:any){
+    return  error.response?.data || error.message || error;
+  }
+};

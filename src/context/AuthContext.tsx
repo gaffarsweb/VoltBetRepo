@@ -1,5 +1,6 @@
 "use client";
 
+import { getMyBalance } from "@/lib/api";
 import {
   createContext,
   useContext,
@@ -46,6 +47,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const fetchBalance = async () => {
+        const updatedbalance = await getMyBalance();
+        if (updatedbalance && updatedbalance.data) {
+          setUser((prevUser: any) => {
+            if (!prevUser) return prevUser;
+            return {
+              ...prevUser,
+              balance: Number(updatedbalance.data.balance).toFixed(2), // Randomly increase balance
+            };
+          });
+        }
+      };
+      fetchBalance(); // Initial fetch
+      // Simulate balance update
+      const interval = setInterval(fetchBalance, 60000); // Update every 1 min
+      return () => clearInterval(interval);
+    }
+  }, [user])
 
   // 🔐 Login
   const login = (data: any) => {

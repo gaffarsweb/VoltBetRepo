@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const interval = setInterval(fetchBalance, 60000); // Update every 1 min
       return () => clearInterval(interval);
     }
-  }, [user])
+  }, [user?.id])
 
   // 🔐 Login
   const login = (data: any) => {

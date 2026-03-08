@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaBell,
   FaGift,
@@ -14,7 +14,14 @@ export default function Header() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [openProfile, setOpenProfile] = useState(false);
+  const [openBalance, setOpenBalance] = useState(false);
 
+
+  useEffect(() => {
+    const close = () => setOpenBalance(false);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, []);
   return (
     <header className="h-16 bg-gradient-to-r from-[#0B0F1A] via-[#141B2D] to-[#0B0F1A] flex items-center justify-between px-6 border-b border-gray-800 relative">
 
@@ -48,15 +55,44 @@ export default function Header() {
         ) : (
           <>
             {/* Balance Dropdown */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#111726] rounded-lg border border-gray-700 cursor-pointer hover:border-primary transition">
+            <div onClick={(e) => {
+              e.stopPropagation();
+              setOpenBalance(!openBalance)
+            }}
+              className="flex items-center gap-2 px-4 py-2 bg-[#111726] rounded-lg border border-gray-700 cursor-pointer hover:border-primary transition">
               <span className="font-semibold text-green-400">
                 ${user.balance}
               </span>
               <FaChevronDown className="text-xs text-gray-400" />
-            </div>
 
+              {openBalance && (
+                <div className="absolute right-34 mt-3 top-14 w-72 bg-[#1E293B] border border-gray-700 rounded-xl shadow-xl p-4 z-50">
+
+                  <div className="border border-green-500 rounded-lg p-4 bg-[#263545]">
+                    <p className="text-green-400 text-sm">Primary Balance</p>
+                    <p className="text-xl font-bold">${user.balance}</p>
+                  </div>
+
+                  <div className="my-4 border-t border-gray-700"></div>
+
+                  <div className="flex items-center gap-2 text-gray-300 text-sm">
+                    <span className="bg-green-500 text-black w-6 h-6 flex items-center justify-center rounded-full font-bold">
+                      $
+                    </span>
+                    Displaying currency in USD
+                  </div>
+
+                  <button
+                    onClick={() => router.push("/auth/wallet-setting")}
+                    className="mt-4 cursor-pointer w-full bg-[#334155] hover:bg-[#475569] py-3 rounded-lg transition"
+                  >
+                    Wallet Settings
+                  </button>
+                </div>
+              )}
+            </div>
             {/* Deposit Button */}
-            <button className="px-4 cursor-pointer py-2 bg-green-600 hover:bg-green-500 rounded-lg font-semibold transition">
+            <button onClick={()=>router.push('/auth/deposit')} className="px-4 cursor-pointer py-2 bg-green-600 hover:bg-green-500 rounded-lg font-semibold transition">
               Deposit
             </button>
 
@@ -109,6 +145,6 @@ export default function Header() {
           </>
         )}
       </div>
-    </header>
+    </header >
   );
 }

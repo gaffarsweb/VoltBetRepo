@@ -37,3 +37,34 @@ export const getMyBalance = async () => {
     return  error.response?.data || error.message || error;
   }
 };
+
+// network
+// 🪙 Get All Tokens
+export const getAllTokensApi = async () => {
+  try {
+    const res = await api.get("/network/tokens");
+    return res.data;
+  } catch (err: any) {
+    return err.response?.data;
+  }
+};
+
+// 🌐 Get Tokens by Network
+export const getTokensByNetworkApi = async (networkId: string) => {
+  try {
+    const res = await api.get(`/network/token/network/${networkId}`);
+    return res.data;
+  } catch (err: any) {
+    return err.response?.data;
+  }
+};
+
+// 🌐 Get All Networks
+export const getNetworksApi = async () => {
+  try {
+    const res = await api.get("/network");
+    return res.data;
+  } catch (err: any) {
+    return err.response?.data;
+  }
+};

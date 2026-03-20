@@ -4,20 +4,53 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaTimes, FaBitcoin } from "react-icons/fa";
 import { RiArrowDropDownLine } from "react-icons/ri";
+import { useEffect } from "react";
+import { getAllTokensApi, getNetworksApi } from "@/lib/api";
 
 export default function DepositModal() {
     const router = useRouter();
 
     const [tab, setTab] = useState("deposit");
     const [currency, setCurrency] = useState("BTC");
-    const [network, setNetwork] = useState("Bitcoin");
     const [amount, setAmount] = useState("");
+
+    const [tokens, setTokens] = useState<any[]>([]);
+    // const [networks, setNetworks] = useState<any[]>([]);
+    const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
 
     const depositAddress = "bc1qlt...exampleaddress123";
 
     const copyAddress = () => {
         navigator.clipboard.writeText(depositAddress);
     };
+
+    useEffect(() => {
+        const loadData = async () => {
+            const tokenRes = await getAllTokensApi();
+            // const networkRes = await getNetworksApi();
+            setTokens(tokenRes?.data?.tokens || []);
+        };
+
+        loadData();
+    }, []);
+
+    const filteredTokens = tokens.filter(
+        (t) => t.tokenSymbol === currency
+    );
+    const uniqueCurrencies = Array.from(
+        new Set(tokens.map((t) => t.tokenSymbol))
+    );
+    const uniqueNetworks = Array.from(
+        new Map(
+            filteredTokens.map((t) => [t.networkId._id, t])
+        ).values()
+    );
+    useEffect(() => {
+        if (uniqueNetworks.length === 1) {
+            setSelectedNetwork(uniqueNetworks[0]);
+        }
+    }, [currency, tokens]);
+
 
     return (
         <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -85,12 +118,19 @@ export default function DepositModal() {
                                     <div className="relative w-full">
                                         <select
                                             value={currency}
-                                            onChange={(e) => setCurrency(e.target.value)}
-                                            className="w-full p-4 rounded-xl bg-[#111726] border border-gray-700 outline-none appearance-none"
+                                            onChange={(e) => {
+                                                setCurrency(e.target.value);
+                                                setSelectedNetwork(null);
+                                            }}
+                                            className="w-full p-4 appearance-none rounded-xl bg-[#111726] border border-gray-700 outline-none"
                                         >
-                                            <option value="BTC">BTC - Bitcoin</option>
-                                            <option value="ETH">ETH - Ethereum</option>
-                                            <option value="USDT">USDT - Tether</option>
+                                            <option value="">Select Currency</option>
+
+                                            {uniqueCurrencies.map((symbol) => (
+                                                <option key={symbol} value={symbol}>
+                                                    {symbol}
+                                                </option>
+                                            ))}
                                         </select>
                                         <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-white">
                                             <RiArrowDropDownLine size={35} />
@@ -106,13 +146,22 @@ export default function DepositModal() {
 
                                     <div className="relative w-full">
                                         <select
-                                            value={network}
-                                            onChange={(e) => setNetwork(e.target.value)}
-                                            className="w-full p-4 rounded-xl bg-[#111726] border appearance-none border-gray-700 outline-none"
+                                            value={selectedNetwork?.networkId?._id || ""}
+                                            onChange={(e) => {
+                                                const token = filteredTokens.find(
+                                                    (t) => t.networkId._id === e.target.value
+                                                );
+                                                setSelectedNetwork(token);
+                                            }}
+                                            className="w-full appearance-none p-4 rounded-xl bg-[#111726] border border-gray-700 outline-none"
                                         >
-                                            <option>Bitcoin</option>
-                                            <option>ERC20</option>
-                                            <option>TRC20</option>
+                                            <option value="">Select Network</option>
+
+                                            {uniqueNetworks.map((t) => (
+                                                <option key={t._id} value={t.networkId._id}>
+                                                    {t.networkId.name} ({t.networkId.type})
+                                                </option>
+                                            ))}
                                         </select>
                                         <span className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-white">
                                             <RiArrowDropDownLine size={35} />
@@ -155,7 +204,7 @@ export default function DepositModal() {
                                             </div>
 
                                             <div className="text-red-400 text-sm">
-                                                Send only {currency} on the {network} network.
+                                                Send only {currency} on the {selectedNetwork?.networkId?.name} network.
                                                 <br />
                                                 <span className="text-gray-400">
                                                     Minimum deposit $15 • 1 confirmation required.

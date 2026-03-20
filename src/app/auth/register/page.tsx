@@ -45,7 +45,6 @@ export default function RegisterModal() {
         return;
       }
       const response = await registerApi({ username, email, password });
-      console.log('Register response:', response);
       if (response.success) {
         toast.success("Registration successful!");
         login({

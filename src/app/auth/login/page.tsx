@@ -39,7 +39,6 @@ export default function LoginModal() {
         return;
       }
       const response = await loginApi({ email, password });
-      console.log('Login response:', response);
       if (response.success) {
         toast.success("Login successful!");
         login({

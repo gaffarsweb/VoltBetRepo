@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FaTimes, FaBitcoin } from "react-icons/fa";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { useEffect } from "react";
-import { getAllTokensApi, getNetworksApi } from "@/lib/api";
+import { getAllTokensApi, getNetworksApi, getWalletApi } from "@/lib/api";
 
 export default function DepositModal() {
     const router = useRouter();
@@ -17,8 +17,9 @@ export default function DepositModal() {
     const [tokens, setTokens] = useState<any[]>([]);
     // const [networks, setNetworks] = useState<any[]>([]);
     const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
+    const [depositAddress, setDepositAddress] = useState<any>('bc1qlt...exampleaddress123');
+    const [minDeposit, setminDeposit] = useState<any>(0);
 
-    const depositAddress = "bc1qlt...exampleaddress123";
 
     const copyAddress = () => {
         navigator.clipboard.writeText(depositAddress);
@@ -50,7 +51,24 @@ export default function DepositModal() {
             setSelectedNetwork(uniqueNetworks[0]);
         }
     }, [currency, tokens]);
+    useEffect(() => {
+        const fetchWallet = async () => {
+            if (!selectedNetwork) return;
 
+            const networkId = selectedNetwork.networkId._id;
+
+            const res = await getWalletApi(networkId, currency);
+            console.log('currrs', res)
+            if (res?.data?.address) {
+                setDepositAddress(res.data.address);
+            }
+            if (res?.data?.minDeposit) {
+                setminDeposit(res?.data?.minDeposit)
+            }
+        };
+
+        fetchWallet();
+    }, [selectedNetwork]);
 
     return (
         <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -207,7 +225,7 @@ export default function DepositModal() {
                                                 Send only {currency} on the {selectedNetwork?.networkId?.name} network.
                                                 <br />
                                                 <span className="text-gray-400">
-                                                    Minimum deposit $15 • 1 confirmation required.
+                                                    Minimum deposit ${minDeposit} • 1 confirmation required.
                                                 </span>
                                             </div>
 

@@ -30,11 +30,11 @@ export const getProfileApi = async () => {
   return response.data;
 };
 export const getMyBalance = async () => {
-  try{
-  const response = await api.get("/balance/");
-  return response.data;
-  }catch(error:any){
-    return  error.response?.data || error.message || error;
+  try {
+    const response = await api.get("/balance/");
+    return response.data;
+  } catch (error: any) {
+    return error.response?.data || error.message || error;
   }
 };
 
@@ -66,5 +66,14 @@ export const getNetworksApi = async () => {
     return res.data;
   } catch (err: any) {
     return err.response?.data;
+  }
+};
+
+export const getWalletApi = async (networkId: string, tokenSymbol: string) => {
+  try {
+    const res = await api.get(`/wallet?networkId=${networkId}&tokenSymbol=${tokenSymbol}`);
+    return res.data;
+  } catch (error: any) {
+    return error.response?.data;
   }
 };

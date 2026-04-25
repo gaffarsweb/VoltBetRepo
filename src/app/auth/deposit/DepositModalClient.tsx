@@ -47,10 +47,15 @@ export default function DepositModal() {
         ).values()
     );
     useEffect(() => {
-        if (uniqueNetworks.length === 1) {
+        if (uniqueCurrencies.length > 0) {
+            setCurrency(uniqueCurrencies[0]);
+        }
+    }, [tokens, uniqueCurrencies]);
+    useEffect(() => {
+        if (uniqueNetworks.length > 0) {
             setSelectedNetwork(uniqueNetworks[0]);
         }
-    }, [currency, tokens]);
+    }, [currency, uniqueNetworks]);
     useEffect(() => {
         const fetchWallet = async () => {
             if (!selectedNetwork) return;
@@ -101,7 +106,8 @@ export default function DepositModal() {
                     {/* TABS */}
                     <div className="flex  gap-3 bg-[#111726] p-2 rounded-xl w-fit">
 
-                        {["deposit", "withdraw", "buy crypto", "tip", "redeem"].map((t) => (
+                        {/* {["deposit", "withdraw", "buy crypto", "tip", "redeem"].map((t) => ( */}
+                        {["deposit", "withdraw"].map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setTab(t)}

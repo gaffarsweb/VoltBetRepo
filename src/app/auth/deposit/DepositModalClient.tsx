@@ -11,14 +11,14 @@ export default function DepositModal() {
     const router = useRouter();
 
     const [tab, setTab] = useState("deposit");
-    const [currency, setCurrency] = useState("BTC");
+    const [currency, setCurrency] = useState("");
     const [amount, setAmount] = useState("");
 
     const [tokens, setTokens] = useState<any[]>([]);
-    // const [networks, setNetworks] = useState<any[]>([]);
     const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
     const [depositAddress, setDepositAddress] = useState<any>('bc1qlt...exampleaddress123');
     const [minDeposit, setminDeposit] = useState<any>(0);
+    const [isInitialized, setIsInitialized] = useState(false);
 
 
     const copyAddress = () => {
@@ -28,8 +28,35 @@ export default function DepositModal() {
     useEffect(() => {
         const loadData = async () => {
             const tokenRes = await getAllTokensApi();
-            // const networkRes = await getNetworksApi();
-            setTokens(tokenRes?.data?.tokens || []);
+            const loadedTokens = tokenRes?.data?.tokens || [];
+            setTokens(loadedTokens);
+
+            // Set default currency (first available)
+            if (loadedTokens.length > 0 && !isInitialized) {
+                const uniqueCurrencies = Array.from(
+                    new Set(loadedTokens.map((t: any) => t.tokenSymbol))
+                );
+                if (uniqueCurrencies.length > 0) {
+                    const defaultCurrency = uniqueCurrencies[0] as string;
+                    setCurrency(defaultCurrency);
+
+                    // Auto-select network if only one exists for this currency
+                    const filteredForDefault = loadedTokens.filter(
+                        (t: any) => t.tokenSymbol === defaultCurrency
+                    );
+                    const uniqueNetworksForCurrency = Array.from(
+                        new Map(
+                            filteredForDefault.map((t: any) => [t.networkId._id, t])
+                        ).values()
+                    );
+
+                    // If only one network for this currency, auto-select it
+                    if (uniqueNetworksForCurrency.length === 1) {
+                        setSelectedNetwork(uniqueNetworksForCurrency[0]);
+                    }
+                    setIsInitialized(true);
+                }
+            }
         };
 
         loadData();
@@ -46,16 +73,7 @@ export default function DepositModal() {
             filteredTokens.map((t) => [t.networkId._id, t])
         ).values()
     );
-    useEffect(() => {
-        if (uniqueCurrencies.length > 0) {
-            setCurrency(uniqueCurrencies[0]);
-        }
-    }, [tokens, uniqueCurrencies]);
-    useEffect(() => {
-        if (uniqueNetworks.length > 0) {
-            setSelectedNetwork(uniqueNetworks[0]);
-        }
-    }, [currency, uniqueNetworks]);
+
     useEffect(() => {
         const fetchWallet = async () => {
             if (!selectedNetwork) return;
@@ -143,8 +161,23 @@ export default function DepositModal() {
                                         <select
                                             value={currency}
                                             onChange={(e) => {
-                                                setCurrency(e.target.value);
+                                                const newCurrency = e.target.value;
+                                                setCurrency(newCurrency);
                                                 setSelectedNetwork(null);
+
+                                                // Auto-select network if only one exists for this currency
+                                                const filteredForCurrency = tokens.filter(
+                                                    (t: any) => t.tokenSymbol === newCurrency
+                                                );
+                                                const uniqueNetworksForCurrency = Array.from(
+                                                    new Map(
+                                                        filteredForCurrency.map((t: any) => [t.networkId._id, t])
+                                                    ).values()
+                                                );
+
+                                                if (uniqueNetworksForCurrency.length === 1) {
+                                                    setSelectedNetwork(uniqueNetworksForCurrency[0]);
+                                                }
                                             }}
                                             className="w-full p-4 appearance-none rounded-xl bg-[#111726] border border-gray-700 outline-none"
                                         >
